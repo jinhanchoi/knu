@@ -57,11 +57,11 @@ from os.path import isfile, join
 def getAllFiles(basePath):
     onlyfiles = [f for f in listdir(basePath) if isfile(join(basePath, f)) and not f.startswith(".")]
     return onlyfiles
-def readAllCsv(basePath,files):
-    dataframes = [pandas.read_csv(join(basePath,f)) for f in files]
-    return dataframes
+def readAllFile(basePath,files):
+    readFiles = [open(join(basePath,f), mode='rt', encoding='utf-8') for f in files]
+    return readFiles
 def concatAllDataframes(dataframes):
-    return pandas.concat(dataframes, axis=0,ignore_index=True)
+    return pandas.concat(dataframes)
 
 if __name__ == "__main__":
     
@@ -70,9 +70,14 @@ if __name__ == "__main__":
         print("\n\n")
         print(sys.argv[1])
         #fileMoveBasedTodayDate(sys.argv[1])
-
-        mergedFrame = concatAllDataframes(readAllCsv(sys.argv[1],getAllFiles(sys.argv[1])))
-        mergedFrame.to_csv(join(sys.argv[1],"merged.csv"),mode="w")
+        mergedFrame = readAllFile(sys.argv[1],getAllFiles(sys.argv[1]))
+        errors = []
+        for file in mergedFrame:
+            line = file.readlines()
+            errors.extend(line)
+        result = open(join(sys.argv[1],"errors.txt"), mode="wt", encoding="utf-8")
+        result.writelines(errors)
+        # mergedFrame.to_csv(join(sys.argv[1],"merged.csv"),mode="w")
 
         #remove every file
         
